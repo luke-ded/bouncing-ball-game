@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="ANSI" />
+    <title>Bouncing Ball Game</title>
+    <style>
+      * { padding: 0; margin: 0; }
+      canvas { background: rgb(255, 255, 255); display: block; margin: 0 auto; }
+    </style>
+</head>
+<body>
+
+<canvas id="mainCanvas" width = '1368' height = '320'></canvas>
+<! -- I got the HTML code from here because I do not know how to write HTML.
+ https://developer.mozilla.org/en-US/docs/Games/Tutorials/2D_Breakout_game_pure_JavaScript/Create_the_Canvas_and_draw_on_it
+I also used these articles for some help on various other parts of the project, but I did not copy.
+-->
+<script>
+let groundAccents = [];
+let obstacles = [];
+let canvas = document.getElementById("mainCanvas");
+let ctx = canvas.getContext("2d");
+let begun = false;
+let end = false;
+let frameNum = 1;
+let runTime = 0;
+let speed = 8;
+let testBool = false;
+
+//Player variables
+let circleRad = 8;
+let ypos = 273;
+let jumpInt;
+let bounceInt;
+let bounce2Int;
+let jumping = false;
+let movingDown = false;
+
+//----------Drawing section----------//
+
+for (let i = 0; i < 110; i += 1) { // Drawing initial ground
+    let num1 = Math.floor(Math.random() * (1398 - 0) + 0);
+    let num2 = Math.floor(Math.random() * (320 - 291) + 291);
+    groundAccents.push([num1, num2])
+}
+function newGround() { //replacing ground that goes off the edge
+    let num1 = Math.floor(Math.random() * (1398 - 1380) + 1380);
+    let num2 = Math.floor(Math.random() * (320 - 291) + 291);
+    groundAccents.push([num1, num2]);
+}
+
+function newObstacle() {
+    //console.log(obstacles)
+    let newObstacle = [Math.floor(Math.random() * (2740-1370) + 1370), 291]
+    for (let i = 0; i < obstacles.length; i ++) {
+        console.log(Math.abs(newObstacle[0] - obstacles[i][0]))
+        if (Math.abs(newObstacle[0] - obstacles[i][0]) > 5 && Math.abs(newObstacle[0] - obstacles[i][0]) < 1000) {
+            newObstacle[0] = Math.floor(Math.random() * (2740-1370) + 1370)
+            i = 0
+            console.log('times')           
+        }else {
+            obstacles.push(newObstacle)
+            //console.log(obstacles) 
+            break;
+            
+        } 
+    }
+} //TRY JUST MAKING A NEW OBSTACLE A RANDOM DISTANCE FROM THE PREVIOUS OBSTACLE//
+
+function mainLoop(newCanvas) { // ---------- MAIN LOOP BEGINS ---------- //
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0,0, canvas.width, canvas.height);
+    //Player ball drawing
+    
+    ctx.beginPath();
+    ctx.fillStyle = 'black';
+    ctx.arc(100, ypos, circleRad, 0, 2 * Math.PI);
+    ctx.fill();
+
+    //draw ground line
+    ctx.lineWidth = 10
+    ctx.moveTo(0, 290);
+    ctx.lineTo(canvas.width, 290);
+    ctx.stroke();
+    //Draw Score
+    ctx.font = 'bold 15px Arial';
+        ctx.textAlign = 'center';
+        ctx. textBaseline = 'middle';
+        ctx.fillStyle = 'black';
+        ctx.fillText(`Score: ${Math.floor(runTime)*2}`, canvas.width - 70, 30);
+    if (begun === false) {
+        drawTitle(); // Draws Title
+    }
+
+    for (let i = 0; i < groundAccents.length; i ++) { // moves ground accents
+        //console.log('point 4')
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(groundAccents[i][0], groundAccents[i][1]);
+        ctx.lineTo(groundAccents[i][0] + 1, groundAccents[i][1] + 1);
+        ctx.stroke();
+        groundAccents[i][0] -= speed;
+        if (groundAccents[i][0] < 0) {
+            groundAccents.splice(i,1);
+            newGround();
+        }
+    }
+    for (let i = 0; i < obstacles.length; i ++) { // draws obstacles (spikes)
+        ctx.beginPath();
+        ctx.moveTo(obstacles[i][0], obstacles[i][1]);
+        ctx.lineTo(obstacles[i][0] + 7, obstacles[i][1] - 40);
+        ctx.lineTo(obstacles[i][0] + 14,obstacles[i][1]);
+        ctx.fill()
+        if (Math.abs(100-obstacles[i][0]) < circleRad && Math.abs((ypos+20)-obstacles[i][1]) < circleRad|| // collision detection
+        Math.abs(100-(obstacles[i][0] + 7)) < circleRad && Math.abs((ypos)-(obstacles[i][1] - 40)) < circleRad ||
+        Math.abs(100-(obstacles[i][0] + 14)) < circleRad && Math.abs((ypos)-obstacles[i][1]) < circleRad) {
+            /*console.log(`Y position: ${ypos}. obstacles[i]:${obstacles[i]}. Math.abs(100-obstacles[i][0]): ${Math.abs(100-obstacles[i][0])}.
+            Math.abs(ypos-obstacles[i][1]): ${Math.abs(ypos-obstacles[i][1])}. Math.abs(100-(obstacles[i][0] + 7)): ${Math.abs(100-(obstacles[i][0] + 7))}.
+            Math.abs(ypos-(obstacles[i][1] - 40)): ${Math.abs(ypos-(obstacles[i][1] - 40))}. Math.abs(100-(obstacles[i][0] + 14)): ${Math.abs(100-(obstacles[i][0] + 14))}.
+            Math.abs(ypos-obstacles[i][1]): ${Math.abs(ypos-obstacles[i][1])}`); */
+            ctx.font = 'italic 18px Arial';
+            ctx.textAlign = 'center';
+            ctx. textBaseline = 'middle';
+            ctx.fillStyle = 'black';
+            ctx.fillText(`Game Over. Your score was ${Math.floor(runTime) * 2}.`, canvas.width/2, canvas.height/2);
+            ctx.fillText('Reload the page to start again.', canvas.width/2, canvas.height/2 + 50);
+            end = true;
+        }
+
+        obstacles[i][0] -= speed
+        if (obstacles[i][0] < 0) { // removes obstacle once off screen
+            obstacles.splice(i,1);
+            newObstacle();
+
+        }
+    }
+}
+
+function drawTitle() {
+    if (true) {
+        ctx.font = 'italic 18px Arial';
+        ctx.textAlign = 'center';
+        ctx. textBaseline = 'middle';
+        ctx.fillStyle = 'black';
+        ctx.fillText('Press spacebar to begin!', canvas.width/2, canvas.height/2);
+        // How to draw text on canvas: https://stackendflow.com/questions/3697615/how-can-i-write-text-on-a-html5-canvas-element
+    }
+}
+
+
+//key press functions
+
+function jump() {
+    if(ypos > 150 && !movingDown){
+        ypos-=3;
+    } else{
+    movingDown = true;
+        ypos +=2.5;
+        if(ypos > 273){
+            clearInterval(jumpInt);
+            movingDown = false;
+            //bounceInt = setInterval(bounce1, 3)
+            jumping = false;
+            
+        }
+    }
+}
+// How to jump: https://stackendflow.com/questions/15981062/html5-canvas-character-jump
+
+function bounce1() {
+    if(ypos > 240 && !movingDown){ //Bounce 1
+        ypos-=3;
+    } else{
+    movingDown = true;
+        ypos +=2.5;
+        if(ypos > 273){
+            clearInterval(bounceInt);
+            bounce2Int = setInterval(bounce2, 3)
+            movingDown = false;
+        }
+    }
+}
+
+function bounce2() {
+    if(ypos > 250 && !movingDown){ //Bounce 1
+        ypos-=3;
+    } else{
+    movingDown = true;
+        ypos +=1.5;
+        if(ypos > 273){
+            clearInterval(bounce2Int);
+            movingDown = false;
+            jumping = false;
+        }
+    }
+}
+function keyDownHandler (e) {
+    
+    if(event.key == " " || e.keyCode == 32) {
+        if (begun == false) {
+            game();
+        } else {
+            if (jumping === false) {
+                jumping = true;
+                jumpInt = setInterval(jump, 3)
+            }  
+        }
+    }else if(e.key == "Up" || e.key == "ArrowUp") {
+        if (jumping === false) {
+            jumping = true;
+            jumpInt = setInterval(jump, 3)
+        }
+    }else if (e.key == "Down" || e.key == "ArrowDown") {
+        downPressed = true;
+    }
+}
+
+
+//Calls function, sets game time, and sets interval
+mainLoop(canvas);
+startGame()
+function startGame() {
+    for (let x = 1; x < 100000; x ++) {
+        document.addEventListener('keydown' ,keyDownHandler, false);
+    };
+};
+
+function game() {
+    if (end === false) {
+        begun = true
+        document.addEventListener('keydown' ,keyDownHandler, false);
+        mainLoop()
+        requestAnimationFrame(game)
+        frameNum += .1
+        runTime +=.1
+        if (Math.floor(frameNum) === 30) {
+            speed += .7
+            frameNum = 0
+        }
+        if (Math.floor(runTime) === 15) {// initiate obstacles
+            runTime += 1
+            obstacles.push([1400, 291])
+            for (let x = 1; x <10; x ++) {
+                newObstacle()
+            }
+        }
+        if (runTime > 1000000) { // Completes game in unlikely event someone makes it to the end
+            const ctx = canvas.getContext("2d");
+            ctx.font = 'italic 18px Arial';
+            ctx.textAlign = 'center';
+            ctx. textBaseline = 'middle';
+            ctx.fillStyle = 'black';
+            ctx.fillText('Game COMPLETED. Congratulations!', canvas.width/2, canvas.height/2);
+            end = true;
+        }
+    }
+}
+</script>
+
+</body>
+</html>
