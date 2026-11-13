@@ -17,6 +17,7 @@ a program, and how to import and create modules were covered. The final lesson I
 promises lesson. A promise statement checks if a process throws an error, and runs different code depending
 on if it does or not. In practice, I found them very confusing and hard to implement in the code. At this point it
 was the last week of class, so I stopped learning the course and began working on my smaller coding project.
+
 Before talking about that, however, I would like to convey my opinion of JavaScript. There are many things that I
 dislike about JavaScript. First of all, JavaScript having oddly cased methods and variables is very frustrating. Multiple times an entire section of code has not run because I wrote `math.Floor` instead of `Math.floor`. Worst of all, often when JavaScript throws an error it is vague and unhelpful as to what and where it is. In retrospect, I think I would have been better off learning Java instead of JavaScript. This is not because of these aforementioned frustrations, as I am sure Java would be similar in that respect, but because JavaScript is primarily used for websites, which is not an area I am interested in. Java is a language that is used more in applications and software engineering, which I think would have served me better than JavaScript will in the future.
 
